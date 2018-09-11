@@ -36,6 +36,7 @@ abstract class MockMessage extends GeneratedMessage {
   Int64 get int64 => $_get(4, new Int64(0));
   set int64(x) => setField(5, x);
 
+
   clone() {
     CreateBuilderFunc create = info_.byName["child"].subBuilder;
     return create()..mergeFromMessage(this);

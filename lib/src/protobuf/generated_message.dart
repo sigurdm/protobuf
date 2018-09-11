@@ -4,8 +4,8 @@
 
 part of protobuf;
 
-typedef GeneratedMessage CreateBuilderFunc();
-typedef MakeDefaultFunc();
+typedef CreateBuilderFunc<T> = GeneratedMessage Function();
+typedef MakeDefaultFunc<T> = T Function();
 typedef ProtobufEnum ValueOfFunc(int value);
 
 /// The base class for all protobuf message types.
@@ -234,13 +234,17 @@ abstract class GeneratedMessage {
   ///
   /// If not set, returns the extension's default value.
   getExtension(Extension extension) {
-    if (_fieldSet._isReadOnly) return extension.readonlyDefault;
+    if (_fieldSet._isReadOnly)
+      return extension.readonlyDefault(extension.makeDefault);
     return _fieldSet._ensureExtensions()._getFieldOrDefault(extension);
   }
 
   /// Returns the value of the field associated with [tagNumber], or the
   /// default value if it is not set.
-  getField(int tagNumber) => _fieldSet._getField(tagNumber);
+  getField(int tagNumber);
+
+  $_getField(int tagNumber, MakeDefaultFunc<dynamic> makeDefault) =>
+      _fieldSet._getField(tagNumber, makeDefault);
 
   /// Creates List implementing a mutable repeated field.
   ///
@@ -314,11 +318,14 @@ abstract class GeneratedMessage {
       _fieldSet._$get<T>(index, defaultValue);
 
   /// For generated code only.
-  T $_getN<T>(int index) {
+  T $_getN<T>(int index, [dynamic makeDefault]) {
+    if (makeDefault is! MakeDefaultFunc<T>) {
+      makeDefault = () => makeDefault;
+    }
     if (_fieldSet == null) {
       throw new StateError('Unable to access $index in the proto message');
     }
-    return _fieldSet._$getN<T>(index);
+    return _fieldSet._$getN<T>(index, makeDefault);
   }
 
   /// For generated code only.

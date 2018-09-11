@@ -7,21 +7,30 @@ part of protobuf;
 /// An object representing an extension field.
 class Extension<T> extends FieldInfo<T> {
   final String extendee;
+  final MakeDefaultFunc<T> makeDefault;
+
+  static MakeDefaultFunc<T> findMakeDefault<T>(int type, dynamic defaultOrMaker) {
+    if (defaultOrMaker == null) return PbFieldType._defaultForType(type);
+    if (defaultOrMaker is MakeDefaultFunc<T>) return defaultOrMaker;
+    return () => defaultOrMaker;
+  }
 
   Extension(this.extendee, String name, int tagNumber, int fieldType,
-      [dynamic defaultOrMaker,
+      [defaultOrMaker,
       CreateBuilderFunc subBuilder,
       ValueOfFunc valueOf,
       List<ProtobufEnum> enumValues])
-      : super(name, tagNumber, null, fieldType, defaultOrMaker, subBuilder,
-            valueOf, enumValues);
+      : makeDefault = findMakeDefault<T>(fieldType, defaultOrMaker),
+        super(name, tagNumber, null, fieldType, null, subBuilder, valueOf,
+            enumValues);
 
   Extension.repeated(this.extendee, String name, int tagNumber, int fieldType,
       CheckFunc<T> check,
       [CreateBuilderFunc subBuilder,
       ValueOfFunc valueOf,
       List<ProtobufEnum> enumValues])
-      : super.repeated(name, tagNumber, null, fieldType, check, subBuilder,
+      : makeDefault = null,
+        super.repeated(name, tagNumber, null, fieldType, check, subBuilder,
             valueOf, enumValues);
 
   int get hashCode => extendee.hashCode * 31 + tagNumber;

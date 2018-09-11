@@ -4,7 +4,7 @@
 
 part of protobuf;
 
-class UnknownFieldSet {
+class  UnknownFieldSet {
   final Map<int, UnknownFieldSetField> _fields =
       new Map<int, UnknownFieldSetField>();
 

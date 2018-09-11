@@ -4,6 +4,7 @@
 
 library protobuf;
 
+import 'dart:io'; // XXX
 import 'dart:async' show Future;
 import 'dart:collection' show ListBase;
 import 'dart:convert'

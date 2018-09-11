@@ -11,10 +11,6 @@ class FieldInfo<T> {
   final int index; // index of the field's value. Null for extensions.
   final int type;
 
-  // Constructs the default value of a field.
-  // (Only used for repeated fields where check is null.)
-  final MakeDefaultFunc makeDefault;
-
   // Creates an empty message or group when decoding a message.
   // Not used for other types.
   // see GeneratedMessage._getEmptyMessage
@@ -36,7 +32,6 @@ class FieldInfo<T> {
   FieldInfo(this.name, this.tagNumber, this.index, int type,
       [dynamic defaultOrMaker, this.subBuilder, this.valueOf, this.enumValues])
       : this.type = type,
-        this.makeDefault = findMakeDefault(type, defaultOrMaker),
         this.check = null {
     assert(type != 0);
     assert(!_isGroupOrMessage(type) || subBuilder != null);
@@ -46,8 +41,7 @@ class FieldInfo<T> {
   FieldInfo.repeated(this.name, this.tagNumber, this.index, int type,
       this.check, this.subBuilder,
       [this.valueOf, this.enumValues])
-      : this.type = type,
-        this.makeDefault = (() => new PbList<T>(check: check)) {
+      : this.type = type {
     assert(name != null);
     assert(tagNumber != null);
     assert(_isRepeated(type));
@@ -55,11 +49,6 @@ class FieldInfo<T> {
     assert(!_isEnum(type) || valueOf != null);
   }
 
-  static MakeDefaultFunc findMakeDefault(int type, dynamic defaultOrMaker) {
-    if (defaultOrMaker == null) return PbFieldType._defaultForType(type);
-    if (defaultOrMaker is MakeDefaultFunc) return defaultOrMaker;
-    return () => defaultOrMaker;
-  }
 
   bool get isRequired => _isRequired(type);
   bool get isRepeated => _isRepeated(type);
@@ -68,8 +57,8 @@ class FieldInfo<T> {
 
   /// Returns a read-only default value for a field.
   /// (Unlike getField, doesn't create a repeated field.)
-  get readonlyDefault {
-    if (isRepeated) return const <Null>[];
+  readonlyDefault<T>(MakeDefaultFunc<T> makeDefault) {
+    if (isRepeated) return <T>[]; // TODO make const if possible
     return makeDefault();
   }
 

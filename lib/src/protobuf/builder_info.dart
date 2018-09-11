@@ -115,11 +115,6 @@ class BuilderInfo {
 
   bool containsTagNumber(int tagNumber) => fieldInfo.containsKey(tagNumber);
 
-  defaultValue(int tagNumber) {
-    MakeDefaultFunc func = makeDefault(tagNumber);
-    return func == null ? null : func();
-  }
-
   // Returns the field name for a given tag number, for debugging purposes.
   String fieldName(int tagNumber) {
     FieldInfo i = fieldInfo[tagNumber];
@@ -130,12 +125,6 @@ class BuilderInfo {
     FieldInfo i = fieldInfo[tagNumber];
     return i != null ? i.type : null;
   }
-
-  MakeDefaultFunc makeDefault(int tagNumber) {
-    FieldInfo i = fieldInfo[tagNumber];
-    return i != null ? i.makeDefault : null;
-  }
-
   CreateBuilderFunc subBuilder(int tagNumber) {
     FieldInfo i = fieldInfo[tagNumber];
     return i != null ? i.subBuilder : null;

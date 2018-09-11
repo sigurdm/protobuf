@@ -23,8 +23,7 @@ class _ExtensionFieldSet {
     // I think this was originally here for repeated extensions.
     _addInfoUnchecked(fi);
     var value = _getFieldOrNull(fi);
-    if (value == null) return fi.makeDefault();
-    return value;
+    return value ?? fi.makeDefault();
   }
 
   bool _hasField(int tagNumber) {

@@ -147,12 +147,12 @@ class _FieldSet {
   /// Works for both extended and non-extended fields.
   /// Creates repeated fields (unless read-only).
   /// Suitable for public API.
-  _getField(int tagNumber) {
+  _getField(int tagNumber, MakeDefaultFunc makeDefault) {
     var fi = _nonExtensionInfo(tagNumber);
     if (fi != null) {
       var value = _values[fi.index];
       if (value != null) return value;
-      return _getDefault(fi);
+      return _getDefault(fi, makeDefault);
     }
     if (_hasExtensions) {
       var fi = _extensions._getInfoOrNull(tagNumber);
@@ -163,9 +163,19 @@ class _FieldSet {
     throw new ArgumentError("tag $tagNumber not defined in $_messageName");
   }
 
-  _getDefault(FieldInfo fi) {
-    if (!fi.isRepeated) return fi.makeDefault();
-    if (_isReadOnly) return fi.readonlyDefault;
+  String _getDefaultString(FieldInfo fi, String defaultValue) {
+    assert(!fi.isRepeated);
+    return defaultValue;
+  }
+
+  Int64 _getDefaultInt64(FieldInfo fi, Int64 defaultValue) {
+    assert(!fi.isRepeated);
+    return defaultValue;
+  }
+
+  dynamic _getDefault<T>(FieldInfo fi, MakeDefaultFunc makeDefault) {
+    if (!fi.isRepeated) return makeDefault();
+    if (_isReadOnly) return fi.readonlyDefault(makeDefault);
 
     // TODO(skybrian) we could avoid this by generating another
     // method for repeated fields:
@@ -302,19 +312,16 @@ class _FieldSet {
 
   // Generated method implementations
 
-  /// The implementation of a generated getter.
+  /// The implementation of a generated getter. Common case for primitive values.
   T _$get<T>(int index, T defaultValue) {
-    var value = _values[index];
-    if (value != null) return value as T;
-    if (defaultValue != null) return defaultValue;
-    return _getDefault(_nonExtensionInfoByIndex(index)) as T;
+    return _values[index] ?? defaultValue;
   }
 
   /// The implementation of a generated getter. Common case for submessages.
-  T _$getN<T>(int index) {
+  T _$getN<T>(int index, MakeDefaultFunc makeDefault) {
     var value = _values[index];
     if (value != null) return value as T;
-    return _getDefault(_nonExtensionInfoByIndex(index)) as T;
+    return _getDefault(_nonExtensionInfoByIndex(index), makeDefault) as T;
   }
 
   /// The implementation of a generated getter for repeated fields.
@@ -325,24 +332,13 @@ class _FieldSet {
   }
 
   /// The implementation of a generated getter for String fields.
-  String _$getS(int index, String defaultValue) {
-    var value = _values[index];
-    if (value == null) {
-      if (defaultValue != null) return defaultValue;
-      value = _getDefault(_nonExtensionInfoByIndex(index));
-    }
-    String result = value;
-    return result;
+  String _$getS(int index, [String defaultValue = '']) {
+    return _values[index] ?? defaultValue;
   }
 
   /// The implementation of a generated getter for Int64 fields.
-  Int64 _$getI64(int index) {
-    var value = _values[index];
-    if (value == null) {
-      value = _getDefault(_nonExtensionInfoByIndex(index));
-    }
-    Int64 result = value;
-    return result;
+  Int64 _$getI64(int index, [Int64 defaultValue = Int64.ZERO]) {
+    return _values[index] ?? defaultValue;
   }
 
   /// The implementation of a generated 'has' method.
