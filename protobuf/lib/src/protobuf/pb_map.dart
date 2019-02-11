@@ -60,10 +60,10 @@ class PbMap<K, V> extends MapBase<K, V> {
   void add(CodedBufferReader input, [ExtensionRegistry registry]) {
     int length = input.readInt32();
     int oldLimit = input._currentLimit;
-    input._currentLimit = input._bufferPos + length;
+    input._limitStack.add(input._bufferPos + length);
     _mergeFromCodedBufferReader(_entryFieldSet, input, registry);
     input.checkLastTagWas(0);
-    input._currentLimit = oldLimit;
+    input._limitStack.removeLast();
     K key = _entryFieldSet._$get(0, null);
     V value = _entryFieldSet._$get(1, null);
     _wrappedMap[key] = value;
