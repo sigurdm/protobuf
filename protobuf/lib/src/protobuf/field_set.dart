@@ -655,7 +655,6 @@ class _FieldSet {
 
   void _mergeField(FieldInfo otherFi, fieldValue, {bool isExtension}) {
     int tagNumber = otherFi.tagNumber;
-
     // Determine the FieldInfo to use.
     // Don't allow regular fields to be overwritten by extensions.
     FieldInfo fi = _nonExtensionInfo(tagNumber);

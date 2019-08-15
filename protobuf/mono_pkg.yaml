@@ -11,3 +11,8 @@ stages:
     - group:
       - test
       dart: [2.0.0, dev]
+
+os:
+  - linux
+  - osx
+  - windows
