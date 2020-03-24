@@ -7,9 +7,7 @@ import 'package:query_benchmark/benchmark.dart';
 import 'package:query_benchmark/readfile.dart';
 
 main() {
-  String path = const String.fromEnvironment('testfile') ?? 'testdata/500.pb';
-
-  List<int> encoded = readfile(path);
+  List<int> encoded = readfile(testfilePathFromEnvironment());
   print(
     formatReport(
       title: 'protobuf_decode',
